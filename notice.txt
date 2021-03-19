@@ -1,0 +1,33 @@
+TRAINING:
+DetectorLoader.py =>
+     config_file : carefully the path
+     weight_file : carefully the path
+     conf_thres : confidence for the Action
+main_fast_inference.py =>
+    weights_file : carefully the path
+Data/create_dataset_1.py (create the excel and show the video[for typing the action to label for any frame])
+    class_names : fill your all action 
+    press A and D : you can towrad or backward the screen
+    fill up the all label , restart the pose will show up the class_names by label
+Data/create_dataset_2.py (catch the skeleton by video , that will create the excel automatically)
+    pose_estimator = SPPE_FastPose() : can choose which alphapose skeleton
+    bb : if machine can not realize it will typing 0 will not enter to the excel
+Data/create_dataset_3.py (create the pkl file by itself , and copy this one rename "Coffee_room_new-set(labelXscrw)" , I didn't reseach what both of means)
+Actionsrecognition\train.py =>
+    device : choose what you wanna use gpu(cuda) or cpu 
+    class_names : not important
+    num_class : have to the same size with actions what you build by above 
+    ##actor said visualizer not using, so mark all about that and motions_map not using at all
+
+
+
+
+USE:
+ActionsEstLoader.py => 
+    device : choose what you wanna use gpu(cuda) or cpu 
+    weight_file : can change your own dataset
+    self.class_names : pop up your Action recigintion
+DetectorLoader.py =>
+    conf_thres : confidence for the Action
+main.py =>
+    action_name : can appear the Action with other coloer

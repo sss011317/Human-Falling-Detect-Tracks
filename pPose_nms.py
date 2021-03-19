@@ -223,7 +223,7 @@ def p_merge_fast(ref_pose, cluster_preds, cluster_scores, ref_dist):
     kp_num = 17
     ref_dist = min(ref_dist, 15)
 
-    mask = (dist <= ref_dist)
+    mask = (dist <= float(ref_dist))
     final_pose = torch.zeros(kp_num, 2)
     final_score = torch.zeros(kp_num)
 

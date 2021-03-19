@@ -10,14 +10,17 @@ from threading import Thread, Lock
 
 class CamLoader:
     """Use threading to capture a frame from camera for faster frame load.
-    Recommend for camera or webcam.
+    Recommend for camera or webcam. 
 
     Args:
         camera: (int, str) Source of camera or video.,
         preprocess: (Callable function) to process the frame before return.
     """
     def __init__(self, camera, preprocess=None, ori_return=False):
-        self.stream = cv2.VideoCapture(camera)
+        if len(str(camera)) == 1:
+            self.stream = cv2.VideoCapture(camera)
+        else:
+            self.stream = cv2.VideoCapture(0)
         assert self.stream.isOpened(), 'Cannot read camera source!'
         self.fps = self.stream.get(cv2.CAP_PROP_FPS)
         self.frame_size = (int(self.stream.get(cv2.CAP_PROP_FRAME_WIDTH)),

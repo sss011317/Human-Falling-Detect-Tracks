@@ -151,7 +151,7 @@ if __name__ == '__main__':
                 out = action_model.predict(pts, frame.shape[:2])
                 action_name = action_model.class_names[out[0].argmax()]
                 action = '{}: {:.2f}%'.format(action_name, out[0].max() * 100)
-                if action_name == 'Fall Down':
+                if action_name == 'throwing':
                     clr = (255, 0, 0)
                 elif action_name == 'Lying Down':
                     clr = (255, 200, 0)
@@ -175,7 +175,7 @@ if __name__ == '__main__':
 
         if outvid:
             writer.write(frame)
-
+        cv2.resizeWindow("frame", 1280, 640);
         cv2.imshow('frame', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break

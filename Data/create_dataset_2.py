@@ -7,7 +7,7 @@ This script to extract skeleton joints position and score.
 - If have no annotation file you can leave annot_folder = '' for use Detector model to get the
     bounding box.
 """
-
+from time import sleep
 import os
 import cv2
 import time
@@ -16,13 +16,15 @@ import pandas as pd
 import numpy as np
 import torchvision.transforms as transforms
 
+import sys 
+sys.path.append("..") 
 from DetectorLoader import TinyYOLOv3_onecls
 from PoseEstimateLoader import SPPE_FastPose
 from fn import vis_frame_fast
+sys.path.append("../Data") 
+save_path = '../Data/Home_new-pose+score.csv'
 
-save_path = '../../Data/Home_new-pose+score.csv'
-
-annot_file = '../../Data/Home_new.csv'  # from create_dataset_1.py
+annot_file = '../Data/Home_new.csv'  # from create_dataset_1.py
 video_folder = '../Data/falldata/Home/Videos'
 annot_folder = '../Data/falldata/Home/Annotation_files'  # bounding box annotation for each frame.
 
@@ -32,7 +34,7 @@ detector = TinyYOLOv3_onecls()
 # POSE MODEL.
 inp_h = 320
 inp_w = 256
-pose_estimator = SPPE_FastPose(inp_h, inp_w)
+pose_estimator = SPPE_FastPose("resnet50",inp_h, inp_w)
 
 # with score.
 columns = ['video', 'frame', 'Nose_x', 'Nose_y', 'Nose_s', 'LShoulder_x', 'LShoulder_y', 'LShoulder_s',
@@ -51,23 +53,27 @@ def normalize_points_with_size(points_xy, width, height, flip=False):
     return points_xy
 
 
-annot = pd.read_csv(annot_file)
-vid_list = annot['video'].unique()
+annot_video = pd.read_csv(annot_file)
+vid_list = annot_video['video'].unique()
+count = 0
 for vid in vid_list:
     print(f'Process on: {vid}')
     df = pd.DataFrame(columns=columns)
     cur_row = 0
 
     # Pose Labels.
-    frames_label = annot[annot['video'] == vid].reset_index(drop=True)
-
-    cap = cv2.VideoCapture(os.path.join(video_folder, vid))
+    frames_label = annot_video[annot_video['video'] == vid].reset_index(drop=True)
+    # print(frames_label)
+    cap = cv2.VideoCapture(os.path.join(video_folder,vid))
     frames_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     frame_size = (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
                   int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
-
+    # print("======")
+    # print("frames_count:"+ str(frames_count))
+    # print("frame_size:"+ str(frame_size))
+    # print("======")
     # Bounding Boxs Labels.
-    annot_file = os.path.join(annot_folder, vid.split('.')[0], '.txt')
+    annot_file = os.path.join(annot_folder, vid.split('.')[0], f'.txt')
     annot = None
     if os.path.exists(annot_file):
         annot = pd.read_csv(annot_file, header=None,
@@ -78,16 +84,22 @@ for vid in vid_list:
 
     fps_time = 0
     i = 1
+        
     while True:
         ret, frame = cap.read()
         if ret:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             cls_idx = int(frames_label[frames_label['frame'] == i]['label'])
-
+            
             if annot:
                 bb = np.array(annot.iloc[i-1, 2:].astype(int))
             else:
-                bb = detector.detect(frame)[0, :4].numpy().astype(int)
+                if detector.detect(frame) is not None:
+                    bb = detector.detect(frame)[0, :4].numpy().astype(int)
+                    # print(str(bb))
+                else:
+                    bb = np.array([0,0,0,0])
+                print(bb)
             bb[:2] = np.maximum(0, bb[:2] - 5)
             bb[2:] = np.minimum(frame_size, bb[2:] + 5) if bb[2:].any() != 0 else bb[2:]
 

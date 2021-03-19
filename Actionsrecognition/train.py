@@ -10,9 +10,10 @@ from torch.utils import data
 from torch.optim.adadelta import Adadelta
 from sklearn.model_selection import train_test_split
 
-from pose_utils import motions_map
+import sys 
+sys.path.append("..") 
 from Actionsrecognition.Models import *
-from Visualizer import plot_graphs, plot_confusion_metrix
+# from visualizer import plot_graphs, plot_confusion_metrix
 
 
 save_folder = 'saved/TSSTG(pts+mot)-01(cf+hm-hm)'
@@ -35,9 +36,8 @@ batch_size = 32
 
 data_files = ['../Data/Coffee_room_new-set(labelXscrw).pkl',
               '../Data/Home_new-set(labelXscrw).pkl']
-class_names = ['Standing', 'Walking', 'Sitting', 'Lying Down',
-               'Stand up', 'Sit down', 'Fall Down']
-num_class = len(class_names)
+class_names = ['waitting','throwing','preparing']
+num_class = 3
 
 
 def load_dataset(data_files, batch_size, split_size=0):
@@ -157,16 +157,16 @@ if __name__ == '__main__':
         # SAVE.
         torch.save(model.state_dict(), os.path.join(save_folder, 'tsstg-model.pth'))
 
-        plot_graphs(list(loss_list.values()), list(loss_list.keys()),
-                    'Last Train: {:.2f}, Valid: {:.2f}'.format(
-                        loss_list['train'][-1], loss_list['valid'][-1]
-                    ), 'Loss', xlim=[0, epochs],
-                    save=os.path.join(save_folder, 'loss_graph.png'))
-        plot_graphs(list(accu_list.values()), list(accu_list.keys()),
-                    'Last Train: {:.2f}, Valid: {:.2f}'.format(
-                        accu_list['train'][-1], accu_list['valid'][-1]
-                    ), 'Accu', xlim=[0, epochs],
-                    save=os.path.join(save_folder, 'accu_graph.png'))
+        # plot_graphs(list(loss_list.values()), list(loss_list.keys()),
+                    # 'Last Train: {:.2f}, Valid: {:.2f}'.format(
+                        # loss_list['train'][-1], loss_list['valid'][-1]
+                    # ), 'Loss', xlim=[0, epochs],
+                    # save=os.path.join(save_folder, 'loss_graph.png'))
+        # plot_graphs(list(accu_list.values()), list(accu_list.keys()),
+                    # 'Last Train: {:.2f}, Valid: {:.2f}'.format(
+                        # accu_list['train'][-1], accu_list['valid'][-1]
+                    # ), 'Accu', xlim=[0, epochs],
+                    # save=os.path.join(save_folder, 'accu_graph.png'))
 
         #break
 
@@ -209,9 +209,9 @@ if __name__ == '__main__':
     run_loss = run_loss / len(iterator)
     run_accu = run_accu / len(iterator)
 
-    plot_confusion_metrix(y_trues, y_preds, class_names, 'Eval on: {}\nLoss: {:.4f}, Accu{:.4f}'.format(
-        os.path.basename(data_file), run_loss, run_accu
-    ), 'true', save=os.path.join(save_folder, '{}-confusion_matrix.png'.format(
-        os.path.basename(data_file).split('.')[0])))
+    # plot_confusion_metrix(y_trues, y_preds, class_names, 'Eval on: {}\nLoss: {:.4f}, Accu{:.4f}'.format(
+        # os.path.basename(data_file), run_loss, run_accu
+    # ), 'true', save=os.path.join(save_folder, '{}-confusion_matrix.png'.format(
+        # os.path.basename(data_file).split('.')[0])))
 
     print('Eval Loss: {:.4f}, Accu: {:.4f}'.format(run_loss, run_accu))
