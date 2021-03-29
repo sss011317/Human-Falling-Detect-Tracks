@@ -158,15 +158,16 @@ if __name__ == '__main__':
             if len(track.keypoints_list) == 30:
                 pts = np.array(track.keypoints_list, dtype=np.float32)
                 out = action_model.predict(pts, frame.shape[:2])
+                
                 action_name = action_model.class_names[out[0].argmax()]
                 action = '{}: {:.2f}%'.format(action_name, out[0].max() * 100)
                 # if action_name == 'Throwing':
-                if action_name == 'Fall Down':
-                    clr = (255, 0, 0)
+                if action_name == '跌倒':
+                    clr = (0, 0, 255)
                 
                 # elif action_name == 'Prepare Throwing':
-                elif action_name == 'Lying Down':
-                    clr = (255, 200, 0)
+                elif action_name == '躺下':
+                    clr = (0, 200, 255)
 
             # VISUALIZE.
             if track.time_since_update == 0:
@@ -176,11 +177,11 @@ if __name__ == '__main__':
                 frame = cv2.putText(frame, str(track_id), (center[0], center[1]), cv2.FONT_HERSHEY_COMPLEX,
                                     0.4, (255, 0, 0), 2)
                 #display action when over points
-                action_display_point = 30
+                action_display_point = 10
                 pts = np.array(track.keypoints_list, dtype=np.float32)
                 out = action_model.predict(pts, frame.shape[:2])
                 if out[0].max() * 100 > action_display_point:
-                    frame = cv2ImgAddText(frame, action, bbox[0] + 5, bbox[1] -15, (0, 255, 0), 15)
+                    frame = cv2ImgAddText(frame, action, bbox[0] + 5, bbox[1] -15,clr, 15)
                 # frame = cv2.putText(frame, action, (bbox[0] + 5, bbox[1] + 15), cv2.FONT_HERSHEY_COMPLEX,
                                     # 0.4, clr, 1)
 

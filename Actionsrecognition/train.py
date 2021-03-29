@@ -17,10 +17,10 @@ from Actionsrecognition.Models import *
 
 
 save_folder = 'saved/TSSTG(pts+mot)-01(cf+hm-hm)'
-
+file_name = 'tsstg-model.pth'
 device = 'cuda'
-epochs = 30
-batch_size = 32
+epochs = 60
+batch_size = 64
 
 # DATA FILES.
 # Should be in format of
@@ -36,8 +36,14 @@ batch_size = 32
 
 data_files = ['../Data/Coffee_room_new-set(labelXscrw).pkl',
               '../Data/Home_new-set(labelXscrw).pkl']
-class_names = ['waitting','throwing','preparing']
-num_class = 3
+class_names = ['throwing','shooting']
+# num_class = len(class_names)
+
+#take len of pickle(actions) to num_class
+for fil in data_files:
+        with open(fil, 'rb') as f:
+            fts, lbs = pickle.load(f)
+num_class = len(lbs[0])
 
 
 def load_dataset(data_files, batch_size, split_size=0):
@@ -172,7 +178,7 @@ if __name__ == '__main__':
 
     del train_loader, valid_loader
 
-    model.load_state_dict(torch.load(os.path.join(save_folder, 'tsstg-model.pth')))
+    model.load_state_dict(torch.load(os.path.join(save_folder, file_name)))
 
     # EVALUATION.
     model = set_training(model, False)
