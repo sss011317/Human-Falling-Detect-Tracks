@@ -1,0 +1,10 @@
+conda install pytorch==1.7.0 torchvision==0.8.0 torchaudio==0.7.0 cudatoolkit=10.2 -c pytorch
+
+test connect with cuda
+python
+import torch
+torch.cuda.is_available()
+
+
+check GPU usage rate
+"C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe" -l

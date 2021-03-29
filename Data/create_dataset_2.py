@@ -25,7 +25,7 @@ sys.path.append("../Data")
 save_path = '../Data/Home_new-pose+score.csv'
 
 annot_file = '../Data/Home_new.csv'  # from create_dataset_1.py
-video_folder = '../Data/falldata/Home/Videos'
+video_folder = '../Data/falldata/Home/videos'
 annot_folder = '../Data/falldata/Home/Annotation_files'  # bounding box annotation for each frame.
 
 # DETECTION MODEL.
@@ -34,6 +34,7 @@ detector = TinyYOLOv3_onecls()
 # POSE MODEL.
 inp_h = 320
 inp_w = 256
+#TODO:switch the resnet50 or 101
 pose_estimator = SPPE_FastPose("resnet50",inp_h, inp_w)
 
 # with score.

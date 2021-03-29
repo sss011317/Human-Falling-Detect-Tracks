@@ -4,6 +4,7 @@ import time
 import torch
 import argparse
 import numpy as np
+from PIL import Image,ImageDraw,ImageFont
 
 from Detection.Utils import ResizePadding
 from CameraLoader import CamLoader, CamLoader_Q
@@ -36,7 +37,15 @@ def kpt2bbox(kpt, ex=20):
     """
     return np.array((kpt[:, 0].min() - ex, kpt[:, 1].min() - ex,
                      kpt[:, 0].max() + ex, kpt[:, 1].max() + ex))
-
+#translate the language (openCV not support mandarin)
+def cv2ImgAddText(img, text, left, top, textColor=(0, 255, 0), textSize=20):
+    if (isinstance(img, np.ndarray)):
+        img = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+    draw = ImageDraw.Draw(img)
+    fontText = ImageFont.truetype(
+        "font/simsun.ttc", textSize, encoding="utf-8")
+    draw.text((left, top), text, textColor, font=fontText)
+    return cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
 
 if __name__ == '__main__':
     par = argparse.ArgumentParser(description='Human Fall Detection Demo.')
@@ -143,7 +152,7 @@ if __name__ == '__main__':
             bbox = track.to_tlbr().astype(int)
             center = track.get_center().astype(int)
 
-            action = 'pending..'
+            action = '確認中...'
             clr = (0, 255, 0)
             # Use 30 frames time-steps to prediction.
             if len(track.keypoints_list) == 30:
@@ -154,8 +163,9 @@ if __name__ == '__main__':
                 # if action_name == 'Throwing':
                 if action_name == 'Fall Down':
                     clr = (255, 0, 0)
-                elif action_name == 'Lying Down':
+                
                 # elif action_name == 'Prepare Throwing':
+                elif action_name == 'Lying Down':
                     clr = (255, 200, 0)
 
             # VISUALIZE.
@@ -165,8 +175,14 @@ if __name__ == '__main__':
                 frame = cv2.rectangle(frame, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (0, 255, 0), 1)
                 frame = cv2.putText(frame, str(track_id), (center[0], center[1]), cv2.FONT_HERSHEY_COMPLEX,
                                     0.4, (255, 0, 0), 2)
-                frame = cv2.putText(frame, action, (bbox[0] + 5, bbox[1] + 15), cv2.FONT_HERSHEY_COMPLEX,
-                                    0.4, clr, 1)
+                #display action when over points
+                action_display_point = 30
+                pts = np.array(track.keypoints_list, dtype=np.float32)
+                out = action_model.predict(pts, frame.shape[:2])
+                if out[0].max() * 100 > action_display_point:
+                    frame = cv2ImgAddText(frame, action, bbox[0] + 5, bbox[1] -15, (0, 255, 0), 15)
+                # frame = cv2.putText(frame, action, (bbox[0] + 5, bbox[1] + 15), cv2.FONT_HERSHEY_COMPLEX,
+                                    # 0.4, clr, 1)
 
         # Show Frame.
         frame = cv2.resize(frame, (0, 0), fx=2., fy=2.)
@@ -177,7 +193,7 @@ if __name__ == '__main__':
 
         if outvid:
             writer.write(frame)
-        cv2.resizeWindow("frame", 1280, 640);
+        # cv2.resizeWindow("frame",1280,640);
         cv2.imshow('frame', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break

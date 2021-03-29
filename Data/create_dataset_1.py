@@ -15,9 +15,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-class_names = ['waitting','throwing','preparing']  #WHEN FINISH THE ANOTATION FOR CHECK BY VIDEO.
+class_names = ['sitting','throwing','shooting','fall down']  #WHEN FINISH THE ANOTATION FOR CHECK BY VIDEO.
 
-video_folder = '../Data/falldata/Home/Videos'
+video_folder = '../Data/falldata/Home/videos'
 annot_file = '../Data/Home_new.csv'
 
 # index_video_to_play = 1  # Choose video to play.
@@ -66,10 +66,12 @@ for index_video_to_play in range(0,len(list_file)):
         ret, frame = cap.read()
         if ret:
             cls_name = class_names[int(annot.iloc[i, -1]) - 1]
-            frame = cv2.resize(frame, (0, 0), fx=1.5, fy=1.5)
+            # frame = cv2.resize(frame, (0, 0), fx=1.5, fy=1.5)
             frame = cv2.putText(frame, 'Frame: {} Pose: {}'.format(i+1, cls_name),
                                 (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-            cv2.imshow('frame', frame)
+            # cv2.resizeWindow("frame",1280,640);
+            cv2.imshow(video_list[index_video_to_play], frame)
+            # cv2.imshow('frame', frame)
 
             key = cv2.waitKey(0) & 0xFF
             if key == ord('q') or key == ord('Q'):
