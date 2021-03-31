@@ -29,7 +29,6 @@ def preproc(image):
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     return image
 
-
 def kpt2bbox(kpt, ex=20):
     """Get bbox that hold on all of the keypoints (x,y)
     kpt: array of shape `(N, 2)`,
@@ -142,18 +141,17 @@ if __name__ == '__main__':
         # Update tracks by matching each track information of current and previous frame or
         # create a new track if no matched.
         tracker.update(detections)
-
         # Predict Actions of each track.
         for i, track in enumerate(tracker.tracks):
             if not track.is_confirmed():
                 continue
-
             track_id = track.track_id
             bbox = track.to_tlbr().astype(int)
             center = track.get_center().astype(int)
-
+            
             action = '確認中...'
             clr = (0, 255, 0)
+            line_clr = (0,255,0)
             # Use 30 frames time-steps to prediction.
             if len(track.keypoints_list) == 30:
                 pts = np.array(track.keypoints_list, dtype=np.float32)
@@ -171,20 +169,24 @@ if __name__ == '__main__':
 
             # VISUALIZE.
             if track.time_since_update == 0:
+                tracking = time.time() - track.starttime
+                if tracking > 30:
+                    line_clr = (255,0,0)
                 if args.show_skeleton:
                     frame = draw_single(frame, track.keypoints_list[-1])
-                frame = cv2.rectangle(frame, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (0, 255, 0), 1)
-                frame = cv2.putText(frame, str(track_id), (center[0], center[1]), cv2.FONT_HERSHEY_COMPLEX,
-                                    0.4, (255, 0, 0), 2)
+                frame = cv2.rectangle(frame, (bbox[0], bbox[1]), (bbox[2], bbox[3]), line_clr, 1)
+                frame = cv2.putText(frame, str(track_id)+":"+str(int(tracking)), (center[0], center[1]), cv2.FONT_HERSHEY_COMPLEX,
+                                    0.4, (255, 0, 0), 1)
                 #display action when over points
-                action_display_point = 10
+                action_display_point = 30
                 pts = np.array(track.keypoints_list, dtype=np.float32)
                 out = action_model.predict(pts, frame.shape[:2])
                 if out[0].max() * 100 > action_display_point:
                     frame = cv2ImgAddText(frame, action, bbox[0] + 5, bbox[1] -15,clr, 15)
                 # frame = cv2.putText(frame, action, (bbox[0] + 5, bbox[1] + 15), cv2.FONT_HERSHEY_COMPLEX,
                                     # 0.4, clr, 1)
-
+            else:
+                tracking =0
         # Show Frame.
         frame = cv2.resize(frame, (0, 0), fx=2., fy=2.)
         frame = cv2.putText(frame, '%d, FPS: %f' % (f, 1.0 / (time.time() - fps_time)),

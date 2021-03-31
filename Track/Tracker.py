@@ -59,7 +59,7 @@ class Track:
         self.time_since_update = 0
         self.n_init = n_init
         self.max_age = max_age
-
+        self.starttime = time.time()
         # keypoints list for use in Actions prediction.
         self.keypoints_list = deque(maxlen=buffer)
 
