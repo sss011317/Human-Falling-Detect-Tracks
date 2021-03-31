@@ -1,33 +1,63 @@
-TRAINING:
+Installation:
+Python > 3.6
+Pytorch > 1.3.1
+cuda = 10.2
+anaconda
+pip install -r requirements.txt
+conda install pytorch==1.7.0 torchvision==0.8.0 torchaudio==0.7.0 cudatoolkit=10.2 -c pytorch  (depends on your version)
+
+test connect with cuda:
+In cmd
+type python into
+>>import torch
+>>torch.cuda.is_available() 
+ 
+if display “true”, means installed successed
+
+check GPU usage rate ( careful the path of windows):
+nvidia-smi.exe
+(if not setted the environment path, have to check the direction of the file . the file most be like here: C:\Program Files\NVIDIA Corporation\NVSMI)
+
+DataSet Training  steps:
+setting path:
 DetectorLoader.py =>
-     config_file : carefully the path
-     weight_file : carefully the path
-     conf_thres : confidence for the Action
+     config_file : careful the path
+     weight_file : careful the path
+     conf_thres : confidence for the detect the skeleton
 main_fast_inference.py =>
-    weights_file : carefully the path
-Data/create_dataset_1.py (create the excel and show the video[for typing the action to label for any frame])
+     weights_file : careful the path
+----
+follow steps to create dataset:
+Data/create_dataset_1.py (create the excel and show the video by openCV [for typing the action to label from frame by frame])
     class_names : fill your all action 
-    press A and D : you can towrad or backward the screen
+    press A and D : you can toward or backward the screen
     fill up the all label , restart the pose will show up the class_names by label
-Data/create_dataset_2.py (catch the skeleton by video , that will create the excel automatically)
+Data/create_dataset_2.py (catch the skeleton by video , that will create the excel automatically,if it not exist) (have to careful the DetctorLoader.py, conf_thres will decide how hard to take skeleton)
     pose_estimator = SPPE_FastPose() : can choose which alphapose skeleton
     bb : if machine can not realize it will typing 0 will not enter to the excel
-Data/create_dataset_3.py (create the pkl file by itself , and copy this one rename "Coffee_room_new-set(labelXscrw)" , I didn't reseach what both of means)
+Data/create_dataset_3.py (create the pkl file by itself , and copy this one rename "Coffee_room_new-set(labelXscrw)" , I didn't research what both of means yet)
+train the dataset:
 Actionsrecognition\train.py =>
     device : choose what you wanna use gpu(cuda) or cpu 
     class_names : not important
-    num_class : have to the same size with actions what you build by above 
+    num_class : have to the same size with actions what you build by above(3/31 updated, auto catching the rows of pkl file,this variable won’t change any more)
     ##actor said visualizer not using, so mark all about that and motions_map not using at all
-
-
-
-
+    
 USE:
+setting path:
+DetectorLoader.py =>
+     config_file : careful the path
+     weight_file : careful the path
+     conf_thres : confidence for the detect the skeleton
+main_fast_inference.py =>
+     weights_file : careful the path
+----
 ActionsEstLoader.py => 
     device : choose what you wanna use gpu(cuda) or cpu 
     weight_file : can change your own dataset
-    self.class_names : pop up your Action recigintion
-DetectorLoader.py =>
-    conf_thres : confidence for the Action
-main.py =>
-    action_name : can appear the Action with other coloer
+    self.class_names : pop up your Action recognition
+excute:
+main-en.py =>
+    action_name : can appear the Action with other color
+    tracking : if above 30 second, the line of person be framed up will change to red color
+    action_display_point : if action recognition above 30 points. will show up the action on screen
